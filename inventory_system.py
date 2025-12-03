@@ -124,14 +124,13 @@ def use_item(character, item_id, item_data):
     """
     if item_id not in character["inventory"]:
         raise ItemNotFoundError("Item not in inventory")
-    elif item_id in character["inventory"]:
-        if item_data["type"] != "consumable":
-            raise InvalidItemTypeError("Item type is not consumable")
-        elif item_data["type"] == "consumable":
-            broken = parse_item_effect(item_data["effect"])
-            apply_stat_effect(character, broken[0], broken[1])
-        character["inventory"].remove(item_id)
-        return f"{item_id} used, {broken[0]} increased by {broken[1]}"
+    if item_data["type"] != "consumable":
+        raise InvalidItemTypeError("Item type is not consumable")
+    stat, value = parse_item_effect(item_data["effect"])
+    apply_stat_effect(character, stat, value)
+    character["inventory"].remove(item_id)
+
+    return f"{item_id} used, {stat} increased by {value}"
 
 
 def equip_weapon(character, item_id, item_data):
@@ -195,13 +194,10 @@ def equip_armor(character, item_id, item_data):
     """
     if item_id not in character["inventory"]:
         raise ItemNotFoundError("Item not in inventory")
-
     if item_data["type"] != "armor":
         raise InvalidItemTypeError("Item cannot be equipped because it is not armor.")
-
     if "equipped_armor" in character and character["equipped_armor"]:
         old_item_id = character["equipped_armor"]
-        # put the old armor back into inventory
         character["inventory"].append(old_item_id)
     stat, value = parse_item_effect(item_data["effect"])
     character[stat] = character.get(stat, 0) + value
@@ -209,7 +205,6 @@ def equip_armor(character, item_id, item_data):
     character["inventory"].remove(item_id)
 
     return f"Equipped {item_id}."
-
 
 def unequip_weapon(character, item_data_dict):
     """

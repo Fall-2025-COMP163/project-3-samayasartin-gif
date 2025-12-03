@@ -4,7 +4,7 @@ Quest Handler Module - Starter Code
 
 Name: Samaya Sartin
 
-AI Usage: Microsoft Copilot 
+AI Usage: Microsoft Copilot
 - Exception Usage
 - Typos
 - Debugging
@@ -309,7 +309,7 @@ def display_quest_info(quest_data):
     print(f"\n=== {quest_data['title']} ===")
     print(f"Description: {quest_data['description']}")
     print(f"Rewards: {quest_data['reward_gold']} gold and {quest_data['reward_xp']} XP")
-    print(f"Requirements: {quest_data['required_level']} XP")
+    print(f"Required Level: {quest_data['required_level']}")
 
 
 def display_quest_list(quest_list):
@@ -408,4 +408,3 @@ if __name__ == "__main__":
         print("Quest accepted!")
     except QuestRequirementsNotMetError as e:
         print(f"Cannot accept: {e}")
-

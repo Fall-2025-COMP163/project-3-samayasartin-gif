@@ -4,10 +4,7 @@ Inventory System Module - Starter Code
 
 Name: Samaya Sartin
 
-AI Usage: Microsoft Copilot
-- Debugging
-- Typo
-- Correctly using parsing
+AI Usage: [Document any AI assistance used]
 
 This module handles inventory management, item usage, and equipment.
 """
@@ -167,28 +164,21 @@ def equip_weapon(character, item_id, item_data):
     """
     if item_id not in character["inventory"]:
         raise ItemNotFoundError("Item not in inventory")
-
     if item_data["type"] != "weapon":
-        raise InvalidItemTypeError("Item can not be equipped because it is not a weapon.")
+        raise InvalidItemTypeError("Item cannot be equipped because it is not a weapon.")
 
     if "equipped_weapon" in character and character["equipped_weapon"]:
-        old_weapon = character["equipped_weapon"]
-        old_effect = old_weapon["effect"]
-        broken = parse_item_effect(old_effect)
-        stats = broken[0]
-        value = int(broken[1])
-        character[stats] -= value
-        character["inventory"].append(old_weapon["item_id"])
+        old_item_id = character["equipped_weapon"]
+        character["inventory"].append(old_item_id)
+    stat, value = parse_item_effect(item_data["effect"])
+    character[stat] = character.get(stat, 0) + value
 
-    if item_data["type"] == "weapon":
-        broken = parse_item_effect(item_data["effect"])
-        stats = broken[0]
-        value = int(broken[1])
-        if stats in character:
-            character[stats] += int(value)
-        else:
-            character[stats] = int(value)
+    character["equipped_weapon"] = item_id
+
+    # Remove from inventory
     character["inventory"].remove(item_id)
+
+    return f"Equipped {item_id}."
 
 
 def equip_armor(character, item_id, item_data):
@@ -330,7 +320,7 @@ def sell_item(character, item_id, item_data):
     price = item_data["cost"] // 2
     character["inventory"].remove(item_id)
     character["gold"] += price
-    return f"{item_id} was sold. You recieved {price} gold."
+    return price
 
 
 # ============================================================================

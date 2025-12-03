@@ -4,7 +4,7 @@ Inventory System Module - Starter Code
 
 Name: Samaya Sartin
 
-AI Usage: [Document any AI assistance used]
+AI Usage: Microsoft Copilot
 
 This module handles inventory management, item usage, and equipment.
 """
@@ -76,8 +76,7 @@ def count_item(character, item_id):
 
     Returns: Integer count of item
     """
-    items = list.count(character["inventory"], item_id)
-    return items
+    return character["inventory"].count(item_id)
 
 
 def get_inventory_space_remaining(character):
@@ -86,8 +85,7 @@ def get_inventory_space_remaining(character):
 
     Returns: Integer representing available slots
     """
-    space_left = MAX_INVENTORY_SIZE- list.count(character["inventory"])
-    return space_left
+    return MAX_INVENTORY_SIZE - len(character["inventory"])
 
 
 def clear_inventory(character):
@@ -132,7 +130,8 @@ def use_item(character, item_id, item_data):
         elif item_data["type"] == "consumable":
             broken = parse_item_effect(item_data["effect"])
             apply_stat_effect(character, broken[0], broken[1])
-        return f"{item_data["item_id"]} was use increasing {broken[0]} by {broken[1]}"
+        character["inventory"].remove(item_id)
+        return f"{item_id} used, {broken[0]} increased by {broken[1]}"
 
 
 def equip_weapon(character, item_id, item_data):
@@ -198,30 +197,21 @@ def equip_armor(character, item_id, item_data):
         raise ItemNotFoundError("Item not in inventory")
 
     if item_data["type"] != "armor":
-        raise InvalidItemTypeError("Item can not be equipped because it is not a weapon.")
+        raise InvalidItemTypeError("Item cannot be equipped because it is not armor.")
 
-    if "equipped_armor" in character and character["equipped_weapon"]:
-        old_armor = character["equipped_armor"]
-        old_effect = old_armor["effect"]
-        broken = parse_item_effect(old_effect)
-        stats = broken[0]
-        value = int(broken[1])
-        character[stats] -= value
-        character["inventory"].append(old_armor["item_id"])
-
-    if item_data["type"] == "armor":
-        effects = item_data["effect"]
-        broken = parse_item_effect(effects)
-        stats = broken[0]
-        value = int(broken[1])
-        if stats in character:
-            character[stats] += int(value)
-        else:
-            character[stats] = int(value)
+    if "equipped_armor" in character and character["equipped_armor"]:
+        old_item_id = character["equipped_armor"]
+        # put the old armor back into inventory
+        character["inventory"].append(old_item_id)
+    stat, value = parse_item_effect(item_data["effect"])
+    character[stat] = character.get(stat, 0) + value
+    character["equipped_armor"] = item_id
     character["inventory"].remove(item_id)
 
+    return f"Equipped {item_id}."
 
-def unequip_weapon(character):
+
+def unequip_weapon(character, item_data_dict):
     """
     Remove equipped weapon and return it to inventory
 
@@ -230,7 +220,7 @@ def unequip_weapon(character):
     """
     if "equipped_weapon" in character and character["equipped_weapon"]:
         weapon_id = character["equipped_weapon"]
-        weapon_data = item_data_dict[weapon_id]  # look up the weapon’s data
+        weapon_data = item_data_dict[weapon_id]
         stat, value = parse_item_effect(weapon_data["effect"])
         character[stat] -= value
 
@@ -244,7 +234,7 @@ def unequip_weapon(character):
     return None
 
 
-def unequip_armor(character):
+def unequip_armor(character, item_data_dict):
     """
     Remove equipped armor and return it to inventory
 
@@ -252,19 +242,18 @@ def unequip_armor(character):
     Raises: InventoryFullError if inventory is full
     """
     if "equipped_armor" in character and character["equipped_armor"]:
-        armor = character["equipped_armor"]
-        effect = armor["effect"]
-        broken = parse_item_effect(effect)
-        stats = broken[0]
-        value = int(broken[1])
-        character[stats] -= value
+        armor_id = character["equipped_armor"]
+        armor_data = item_data_dict[armor_id]
+        stat, value = parse_item_effect(armor_data["effect"])
+        character[stat] -= value
+
         if len(character["inventory"]) >= MAX_INVENTORY_SIZE:
             raise InventoryFullError("Inventory full")
 
-        character["inventory"].append(armor["item_id"])
+        character["inventory"].append(armor_id)
         character["equipped_armor"] = None
 
-        return f"{armor["item_id"]} was unequipped."
+        return armor_id
     return None
 
 
@@ -342,7 +331,8 @@ def apply_stat_effect(character, stat_name, value):
     Note: health cannot exceed max_health
     """
     if stat_name == "health":
-        if (character["health"] + value) > character["max_health"]:
+        character["health"] += value
+        if character["health"] > character["max_health"]:
             character["health"] = character["max_health"]
     else:
         character[stat_name] += value

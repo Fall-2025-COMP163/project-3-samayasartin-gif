@@ -2,14 +2,15 @@
 COMP 163 - Project 3: Quest Chronicles
 Main Game Module - Starter Code
 
-Name: Samaya Sartin
+Name: [Your Name Here]
 
-AI Usage: Microsoft Copilot
+AI Usage: [Document any AI assistance used]
 
 This is the main game file that ties all modules together.
 Demonstrates module integration and complete game flow.
 """
 
+# Import all our custom modules
 import character_manager
 import inventory_system
 import quest_handler
@@ -311,8 +312,8 @@ def shop():
             elif choice == "2":
                 item_id = input("Enter item ID to sell: ")
                 if item_id in all_items:
-                    msg = inventory_system.sell_item(current_character, item_id, all_items[item_id])
-                    print(msg)
+                    gold_received = inventory_system.sell_item(current_character, item_id, all_items[item_id])
+                    print(f"Sold {all_items[item_id]['name']} for {gold_received} gold!")
                 else:
                     print("Invalid item ID.")
             elif choice == "3":
@@ -346,22 +347,21 @@ def load_game_data():
     global all_quests, all_items
 
     try:
-        # Try to load quests and items
-        all_quests = game_data.load_quests()
-        all_items = game_data.load_items()
+        # Load quests and items from expected files
+        all_quests = game_data.load_quests("data/quests.txt")
+        all_items = game_data.load_items("data/items.txt")
         print("Game data loaded successfully!")
 
     except MissingDataFileError:
         print("Missing data files. Creating default data...")
         game_data.create_default_data_files()
-        all_quests = game_data.load_quests()
-        all_items = game_data.load_items()
+        all_quests = game_data.load_quests("data/quests.txt")
+        all_items = game_data.load_items("data/items.txt")
         print("Default data created and loaded.")
 
     except InvalidDataFormatError as e:
         print(f"Error loading game data: {e}")
         print("Please check your data files for formatting issues.")
-        # Re-raise so main() can decide whether to exit
         raise
 
     except Exception as e:

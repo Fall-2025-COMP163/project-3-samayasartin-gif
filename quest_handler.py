@@ -134,7 +134,7 @@ def get_completed_quests(character, quest_data_dict):
 
     Returns: List of quest dictionaries for completed quests
     """
-    complete_quests = character["completed_guests"]
+    complete_quests = character["completed_quests"]
     result = []
     for quest_id in complete_quests:
         if quest_id in quest_data_dict:

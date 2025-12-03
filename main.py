@@ -10,7 +10,6 @@ This is the main game file that ties all modules together.
 Demonstrates module integration and complete game flow.
 """
 
-# Import all our custom modules
 import character_manager
 import inventory_system
 import quest_handler
@@ -332,8 +331,7 @@ def save_game():
     global current_character
 
     try:
-        # Use character_manager to save the current character
-        character_manager.save_character(current_character["name"])
+        character_manager.save_character(current_character)
         print(f"Game saved successfully for {current_character['name']}!")
     except FileNotFoundError:
         print("Error: Save file not found.")
@@ -385,10 +383,14 @@ def handle_character_death():
 
         if choice == "1":
             try:
-                character_manager.revive_character(current_character)
-                current_character['gold'] -= 50
-                print("You have been revived! Be careful out there...")
-                return  # back to game loop
+                if current_character['gold'] >= 50:
+                    character_manager.revive_character(current_character)
+                    current_character['gold'] -= 50
+                    print("You have been revived! Be careful out there...")
+                else:
+                    print("You don't have enough gold to revive. Game over.")
+                    game_running = False
+                return
             except InsufficientResourcesError:
                 print("You don't have enough gold to revive. Game over.")
                 game_running = False
@@ -457,3 +459,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

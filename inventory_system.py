@@ -135,13 +135,6 @@ def use_item(character, item_id, item_data):
         return f"{item_data["item_id"]} was use increasing {broken[0]} by {broken[1]}"
 
 
-    # Check if item type is 'consumable'
-    # Parse effect (format: "stat_name:value" e.g., "health:20")
-    # Apply effect to character
-    # Remove item from inventory
-    pass
-
-
 def equip_weapon(character, item_id, item_data):
     """
     Equip a weapon
@@ -236,19 +229,18 @@ def unequip_weapon(character):
     Raises: InventoryFullError if inventory is full
     """
     if "equipped_weapon" in character and character["equipped_weapon"]:
-        weapon = character["equipped_weapon"]
-        effect = weapon["effect"]
-        broken = parse_item_effect("effect")
-        stats = broken[0]
-        value = int(broken[1])
-        character[stats] -= value
+        weapon_id = character["equipped_weapon"]
+        weapon_data = item_data_dict[weapon_id]  # look up the weapon’s data
+        stat, value = parse_item_effect(weapon_data["effect"])
+        character[stat] -= value
+
         if len(character["inventory"]) >= MAX_INVENTORY_SIZE:
             raise InventoryFullError("Inventory full")
 
-        character["inventory"].append(weapon["item_id"])
+        character["inventory"].append(weapon_id)
         character["equipped_weapon"] = None
 
-        return f"{weapon["item_id"]} was unequipped."
+        return weapon_id
     return None
 
 

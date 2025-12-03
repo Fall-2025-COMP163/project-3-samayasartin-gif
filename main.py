@@ -270,7 +270,6 @@ def quest_menu():
 def explore():
     """Find and fight random enemies"""
     global current_character
-
     try:
         enemy = combat_system.get_random_enemy_for_level(current_character["level"])
         print(f"\nA wild {enemy['name']} appears!")
@@ -287,7 +286,6 @@ def explore():
             print("You escaped safely.")
     except Exception as e:
         print(f"Error during exploration: {e}")
-
 
 def shop():
     """Shop menu for buying/selling items"""
